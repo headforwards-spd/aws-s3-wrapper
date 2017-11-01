@@ -1,6 +1,6 @@
 {
   "name": "@headforwards-spd/aws-s3",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A handful of utility tools for AWS s3 functions",
   "main": "index.js",
   "scripts": {
