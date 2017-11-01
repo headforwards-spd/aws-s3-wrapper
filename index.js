@@ -1,9 +1,13 @@
+'use strict';
+
 const AWS = require('aws-sdk');
 const s3  = new AWS.S3();
 
-module.exports.saveDataUri  = saveDataUri;
-module.exports.getObjectUrl = getObjectUrl;
-module.exports.putObjectUrl = putObjectUrl;
+module.exports = {
+    saveDataUri:  saveDataUri,
+    getObjectUrl: getObjectUrl,
+    putObjectUrl: putObjectUrl
+};
 
 function saveDataUri(s3Bucket, dataUri, key) {
 
