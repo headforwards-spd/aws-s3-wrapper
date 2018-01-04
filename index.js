@@ -1,13 +1,10 @@
-'use strict';
-
 const AWS = require('aws-sdk');
 const s3  = new AWS.S3();
 
-module.exports = {
-    saveDataUri:  saveDataUri,
-    getObjectUrl: getObjectUrl,
-    putObjectUrl: putObjectUrl
-};
+module.exports.saveDataUri  = saveDataUri;
+module.exports.getObjectUrl = getObjectUrl;
+module.exports.getObject    = getObject;
+module.exports.putObjectUrl = putObjectUrl;
 
 function saveDataUri(s3Bucket, dataUri, key) {
 
@@ -55,6 +52,8 @@ function getObjectUrl(s3Bucket, key) {
 
             s3.headObject(params, (error) => {
 
+                !!error && console.log(error);
+
                 let url = !error ? s3.getSignedUrl('getObject', params) : null;
 
                 resolve(url);
@@ -66,6 +65,37 @@ function getObjectUrl(s3Bucket, key) {
         }
     });
 }
+
+function getObject(s3Bucket, key) {
+
+    try {
+
+        let params = {
+            Bucket: s3Bucket,
+            Key:    key
+        };
+
+        return Promise.resolve()
+            .then(() => checkObjectExists(params))
+            .then(() => new Promise((resolve, reject) => {
+
+                s3.getObject(params, (error, data) => !error && resolve(data) || reject(error));
+            }));
+
+    } catch(error) {
+
+        return Promise.reject(error);
+    }
+}
+
+function checkObjectExists(params) {
+
+    return new Promise((resolve, reject) => {
+
+        s3.headObject(params, (error) => !error && resolve() || reject(error));
+    });
+}
+
 
 function putObjectUrl(s3Bucket, key, contentType) {
 
