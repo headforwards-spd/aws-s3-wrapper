@@ -41,29 +41,29 @@ function saveDataUri(s3Bucket, dataUri, key) {
 
 function getObjectUrl(s3Bucket, key) {
 
-    return new Promise((resolve, reject) => {
+    try {
 
-        try {
+        let params = {
+            Bucket: s3Bucket,
+            Key:    key
+        };
 
-            let params = {
-                Bucket: s3Bucket,
-                Key:    key
-            };
+        return new Promise(
+            (resolve, reject) => {
+                s3.headObject(params, (error) => {
 
-            s3.headObject(params, (error) => {
+                    !!error && console.log('getObjectUrl', params, error);
 
-                !!error && console.log(error);
+                    let url = !error ? s3.getSignedUrl('getObject', params) : null;
 
-                let url = !error ? s3.getSignedUrl('getObject', params) : null;
-
-                resolve(url);
+                    resolve(url);
+                });
             });
 
-        } catch (error) {
+    } catch (error) {
 
-            reject(error);
-        }
-    });
+        Promise.reject(error);
+    }
 }
 
 function getObject(s3Bucket, key) {
@@ -79,10 +79,11 @@ function getObject(s3Bucket, key) {
             .then(() => checkObjectExists(params))
             .then(() => new Promise((resolve, reject) => {
 
-                s3.getObject(params, (error, data) => !error && resolve(data) || reject(error));
-            }));
+                s3.getObject(params, (error, data) => !error && resolve(data) || resolve(null));
+            }))
+            .catch(() => null);
 
-    } catch(error) {
+    } catch (error) {
 
         return Promise.reject(error);
     }
@@ -95,7 +96,6 @@ function checkObjectExists(params) {
         s3.headObject(params, (error) => !error && resolve() || reject(error));
     });
 }
-
 
 function putObjectUrl(s3Bucket, key, contentType) {
 
